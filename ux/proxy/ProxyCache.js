@@ -97,6 +97,7 @@ Ext.define('Ext.ux.proxy.ProxyCache', {
 	 */
 	addToCache: function(request, response) {
 		if (!response._cached && request.getAction() === "read") {
+                    try {
 			this.getCache();
 			var requestKey = this.getUrl() + Ext.encode(request.getParams());
 			if (this.cache[requestKey] === undefined) {
@@ -113,6 +114,12 @@ Ext.define('Ext.ux.proxy.ProxyCache', {
 				this.cache[requestKey].type = 'xml';
 			}
 			window.localStorage.setItem(this.getCacheKey(), Ext.encode(this.cache));
+                    } catch (exception) { 
+                        // Failed to cache the item, probably due to exceeding quota?
+                        // It's not terribly important so just squelch the exception
+                        // Maybe the cache had some stale items in it. GC-it just in case
+                        this.runGarbageCollection();
+                    }
 		}
 	},
 
