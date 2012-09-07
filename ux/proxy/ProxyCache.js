@@ -29,7 +29,8 @@ Ext.define('Ext.ux.proxy.ProxyCache', {
 	*/
 	config: {
 		cacheTimeout: 3600,
-		cacheKey: 'proxyCache'
+		cacheKey: 'proxyCache',
+                ignoreTimeout: false
 	},
 
 	/**
@@ -44,8 +45,13 @@ Ext.define('Ext.ux.proxy.ProxyCache', {
 
 	/**
 	 * Clears cache entries which have passed their expiration time.
+         * Does nothing if this.getIgnoreTimeout() is true
 	 */
 	runGarbageCollection: function() {
+                // Abort GC?
+                if(this.getIgnoreTimeout())
+                    return;
+                
 		var now = Date.now();
 		for (var key in this.cache) {
 			if (this.cache[key].expires <= now) {
@@ -70,7 +76,7 @@ Ext.define('Ext.ux.proxy.ProxyCache', {
 		this.getCache();
 		this.runGarbageCollection();
 
-		if ((this.cache[requestKey] !== undefined) && (this.cache[requestKey].expires >= Date.now())) {
+		if ((this.cache[requestKey] !== undefined) && (this.getIgnoreTimeout() || this.cache[requestKey].expires >= Date.now())) {
 			var response = this.cache[requestKey].data;
 			if (this.cache[requestKey].type === 'xml') {
 				response.responseXML = this.xmlToDocument(response.responseText);
