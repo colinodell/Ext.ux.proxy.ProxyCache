@@ -51,14 +51,17 @@ Ext.define('Ext.ux.proxy.ProxyCache', {
                 // Abort GC?
                 if(this.getIgnoreTimeout())
                     return;
-                
-		var now = Date.now();
-		for (var key in this.cache) {
-			if (this.cache[key].expires <= now) {
-				delete this.cache[key];
-			}
-		}
-		window.localStorage.setItem(this.config.cacheKey, Ext.encode(this.cache));
+                try {
+                    var now = Date.now();
+                    for (var key in this.cache) {
+                        if (this.cache[key].expires <= now) {
+                            delete this.cache[key];
+                        }
+                    }
+                    window.localStorage.setItem(this.config.cacheKey, Ext.encode(this.cache));
+                } catch (ex) {
+                    console.log("Error during ProxyCache GC: " + ex);
+                }
 	},
 
 	/**
